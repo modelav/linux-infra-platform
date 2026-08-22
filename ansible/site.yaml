@@ -4,3 +4,9 @@
   become: true
   roles:
     - common
+
+- name: Deploy application to app servers
+  hosts: app
+  become: true
+  roles:
+    - app
