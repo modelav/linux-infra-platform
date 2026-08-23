@@ -43,3 +43,21 @@
     ports:
       - "80:80"
   become: true
+
+- name: Create app secret directory
+  ansible.builtin.file:
+    path: /opt/app
+    state: directory
+    owner: admin
+    group: admin
+    mode: "0750"
+  become: true
+
+- name: Write app secret to file
+  ansible.builtin.template:
+    src: env.j2
+    dest: /opt/app/.env
+    owner: admin
+    group: admin
+    mode: "0600"
+  become: true
