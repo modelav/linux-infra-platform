@@ -2,5 +2,6 @@
 app_container_name: "web-app"
 app_container_image: "nginx:alpine"
 app_container_port: "80"
+app_server_private_ip: "10.0.1.23"
 
 app_secret_key: "{{ vault_app_secret_key }}"

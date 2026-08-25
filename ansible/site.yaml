@@ -10,3 +10,9 @@
   become: true
   roles:
     - app
+
+- name: Deploy monitoring stack to monitoring servers
+  hosts: monitoring
+  become: true
+  roles:
+    - monitoring
