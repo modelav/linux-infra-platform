@@ -82,6 +82,15 @@ resource "aws_security_group" "main" {
     cidr_blocks = ["10.0.0.0/16"]
   }
 
+  # Grafana web UI
+  ingress {
+    description = "Grafana from my IP"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = [var.allowed_ssh_cidr]
+  }
+
   # Outbound access - required for apt updates, Docker pulls, etc.
   egress {
     description = "allow all outbound traffic"
