@@ -73,6 +73,14 @@ resource "aws_security_group" "main" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Prometheus scraping Node Exporter
+  ingress {
+    description = "Prometheus scrape Node Exporter"
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
 
   # Outbound access - required for apt updates, Docker pulls, etc.
   egress {
@@ -87,4 +95,3 @@ resource "aws_security_group" "main" {
     Name = "devops-portfolio-sg"
   }
 }
-
