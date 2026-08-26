@@ -101,7 +101,7 @@
     shell: /usr/sbin/nologin
   become: true
 
-- name: Install Node Exporter systemd service
+- name: Install node exporter systemd service
   ansible.builtin.template:
     src: node_exporter.service.j2
     dest: /etc/systemd/system/node_exporter.service
@@ -110,9 +110,65 @@
     mode: "0644"
   become: true
 
-- name: Start and enable Node Exporter
+- name: Start and enable node exporter
   ansible.builtin.systemd:
     name: node_exporter
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Download Promtail
+  ansible.builtin.get_url:
+    url: "https://github.com/grafana/loki/releases/download/v3.0.0/promtail-linux-amd64.zip"
+    dest: /tmp/promtail.zip
+    mode: "0644"
+  become: true
+
+- name: Install unzip
+  ansible.builtin.apt:
+    name: unzip
+    state: present
+  become: true
+
+- name: Extract Promtail
+  ansible.builtin.unarchive:
+    src: /tmp/promtail.zip
+    dest: /usr/local/bin
+    remote_src: true
+  become: true
+
+- name: Create Promtail config directory
+  ansible.builtin.file:
+    path: /etc/promtail
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Configure Promtail
+  ansible.builtin.template:
+    src: promtail-config.yaml.j2
+    dest: /etc/promtail/promtail-config.yml
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart promtail
+
+- name: Install promtail systemd service
+  ansible.builtin.template:
+    src: promtail.service.j2
+    dest: /etc/systemd/system/promtail.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Start and enable Promtail
+  ansible.builtin.systemd:
+    name: promtail
     state: started
     enabled: true
     daemon_reload: true

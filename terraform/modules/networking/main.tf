@@ -91,6 +91,15 @@ resource "aws_security_group" "main" {
     cidr_blocks = [var.allowed_ssh_cidr]
   }
 
+  # Loki receives logs from Promtail
+  ingress {
+    description = "Loki from VPC"
+    from_port   = 3100
+    to_port     = 3100
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"]
+  }
+
   # Outbound access - required for apt updates, Docker pulls, etc.
   egress {
     description = "allow all outbound traffic"

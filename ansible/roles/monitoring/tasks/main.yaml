@@ -76,6 +76,7 @@
     group: grafana
     mode: "0640"
   become: true
+  notify: Restart grafana
 
 - name: Provision Grafana dashboard provider config
   ansible.builtin.copy:
@@ -85,6 +86,7 @@
     group: grafana
     mode: "0640"
   become: true
+  notify: Restart grafana
 
 - name: Provision Grafana dashboard
   ansible.builtin.copy:
@@ -94,6 +96,7 @@
     group: grafana
     mode: "0640"
   become: true
+  notify: Restart grafana
 
 - name: Ensure Grafana provisioning directory exists
   ansible.builtin.file:
@@ -109,4 +112,68 @@
     name: grafana-server
     state: started
     enabled: true
+  become: true
+
+- name: Allow Loki through ufw
+  community.general.ufw:
+    rule: allow
+    port: "3100"
+    proto: tcp
+    from_ip: "10.0.0.0/16"
+  become: true
+
+- name: Download Loki
+  ansible.builtin.get_url:
+    url: "https://github.com/grafana/loki/releases/download/v3.0.0/loki-linux-amd64.zip"
+    dest: /tmp/loki.zip
+    mode: "0644"
+  become: true
+
+- name: Install unzip
+  ansible.builtin.apt:
+    name: unzip
+    state: present
+  become: true
+
+- name: Extract loki
+  ansible.builtin.unarchive:
+    src: /tmp/loki.zip
+    dest: /usr/local/bin
+    remote_src: true
+  become: true
+
+- name: Create loki config directory
+  ansible.builtin.file:
+    path: /etc/loki
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Configure loki
+  ansible.builtin.template:
+    src: loki-config.yaml.j2
+    dest: /etc/loki/loki-config.yml
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart loki
+
+- name: Install loki systemd service
+  ansible.builtin.template:
+    src: loki.service.j2
+    dest: /etc/systemd/system/loki.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Start and enabled loki
+  ansible.builtin.systemd:
+    name: loki
+    state: started
+    enabled: true
+    daemon_reload: true
   become: true

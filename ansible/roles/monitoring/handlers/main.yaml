@@ -3,3 +3,13 @@
   ansible.builtin.service:
     name: prometheus
     state: restarted
+
+- name: Restart grafana
+  ansible.builtin.service:
+    name: grafana-server
+    state: restarted
+
+- name: Restart loki
+  ansible.builtin.service:
+    name: loki
+    state: restarted
