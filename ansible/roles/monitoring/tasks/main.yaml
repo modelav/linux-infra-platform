@@ -7,6 +7,25 @@
     cache_valid_time: 3600
   become: true
 
+- name: Create Prometheus rules directory
+  ansible.builtin.file:
+    path: /etc/prometheus/rules
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: "0755"
+  become: true
+
+- name: Copy alert rules
+  ansible.builtin.copy:
+    src: instance-down.yaml
+    dest: /etc/prometheus/rules/instance-down.yml
+    owner: prometheus
+    group: prometheus
+    mode: "0644"
+  become: true
+  notify: Restart prometheus
+
 - name: Configure prometheus
   ansible.builtin.template:
     src: prometheus.yaml.j2
@@ -173,6 +192,66 @@
 - name: Start and enabled loki
   ansible.builtin.systemd:
     name: loki
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Download Alertmanager
+  ansible.builtin.get_url:
+    url: "https://github.com/prometheus/alertmanager/releases/download/v0.27.0/alertmanager-0.27.0.linux-amd64.tar.gz"
+    dest: /tmp/alertmanager.tar.gz
+    mode: "0644"
+  become: true
+
+- name: Extract Alertmanager
+  ansible.builtin.unarchive:
+    src: /tmp/alertmanager.tar.gz
+    dest: /tmp
+    remote_src: true
+  become: true
+
+- name: Move Alertmanager binary
+  ansible.builtin.copy:
+    src: /tmp/alertmanager-0.27.0.linux-amd64/alertmanager
+    dest: /usr/local/bin/alertmanager
+    owner: root
+    group: root
+    mode: "0755"
+    remote_src: true
+  become: true
+
+- name: Create Alertmanager config directory
+  ansible.builtin.file:
+    path: /etc/alertmanager
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Configure Alertmanager
+  ansible.builtin.template:
+    src: alertmanager.yaml.j2
+    dest: /etc/alertmanager/alertmanager.yml
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart alertmanager
+
+- name: Install alertmanager systemd service
+  ansible.builtin.template:
+    src: alertmanager.service.j2
+    dest: /etc/systemd/system/alertmanager.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Start and enable Alertmanager
+  ansible.builtin.systemd:
+    name: alertmanager
     state: started
     enabled: true
     daemon_reload: true
