@@ -149,7 +149,7 @@
 
 - name: Configure Promtail
   ansible.builtin.template:
-    src: promtail-config.yaml.j2
+    src: promtail-config.yml.j2
     dest: /etc/promtail/promtail-config.yml
     owner: root
     group: root

@@ -11,4 +11,4 @@ override.tf.json
 .vault-password
 *.vault-password
 .vscode
-.vault-password
+.vault-password 

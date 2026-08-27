@@ -5,7 +5,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name = "devops-portfolio-vpc"
+    Name = "project-vpc"
   }
 }
 
@@ -16,7 +16,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true # Auto-assign public IPs to instances
 
   tags = {
-    Name = "devops-portfolio-public-subnet"
+    Name = "project-public-subnet"
   }
 }
 
@@ -25,7 +25,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "devops-portfolio-igw"
+    Name = "project-igw"
   }
 }
 
@@ -39,7 +39,7 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "devops-portfolio-public-rt"
+    Name = "project-public-rt"
   }
 }
 
@@ -51,8 +51,8 @@ resource "aws_route_table_association" "public" {
 
 # Security group: firewall rules
 resource "aws_security_group" "main" {
-  name        = "devops-portfolio-sg"
-  description = "security group for devops portfolio project"
+  name        = "project-sg"
+  description = "security group for  project"
   vpc_id      = aws_vpc.main.id
 
   # SSH inbound: restricted to my ip only
@@ -110,6 +110,6 @@ resource "aws_security_group" "main" {
   }
 
   tags = {
-    Name = "devops-portfolio-sg"
+    Name = "project-sg"
   }
 }

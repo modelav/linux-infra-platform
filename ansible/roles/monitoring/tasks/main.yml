@@ -18,7 +18,7 @@
 
 - name: Copy alert rules
   ansible.builtin.copy:
-    src: instance-down.yaml
+    src: instance-down.yml
     dest: /etc/prometheus/rules/instance-down.yml
     owner: prometheus
     group: prometheus
@@ -28,7 +28,7 @@
 
 - name: Configure prometheus
   ansible.builtin.template:
-    src: prometheus.yaml.j2
+    src: prometheus.yml.j2
     dest: /etc/prometheus/prometheus.yml
     owner: prometheus
     group: prometheus
@@ -89,8 +89,8 @@
 
 - name: Provision Grafana datasource
   ansible.builtin.template:
-    src: datasource.yaml.j2
-    dest: /etc/grafana/provisioning/datasources/prometheus.yaml
+    src: datasource.yml.j2
+    dest: /etc/grafana/provisioning/datasources/prometheus.yml
     owner: root
     group: grafana
     mode: "0640"
@@ -99,8 +99,8 @@
 
 - name: Provision Grafana dashboard provider config
   ansible.builtin.copy:
-    src: dashboards.yaml
-    dest: /etc/grafana/provisioning/dashboards/dashboards.yaml
+    src: dashboards.yml
+    dest: /etc/grafana/provisioning/dashboards/dashboards.yml
     owner: root
     group: grafana
     mode: "0640"
@@ -172,7 +172,7 @@
 
 - name: Configure loki
   ansible.builtin.template:
-    src: loki-config.yaml.j2
+    src: loki-config.yml.j2
     dest: /etc/loki/loki-config.yml
     owner: root
     group: root
@@ -232,7 +232,7 @@
 
 - name: Configure Alertmanager
   ansible.builtin.template:
-    src: alertmanager.yaml.j2
+    src: alertmanager.yml.j2
     dest: /etc/alertmanager/alertmanager.yml
     owner: root
     group: root
