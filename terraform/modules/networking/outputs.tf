@@ -8,7 +8,12 @@ output "subnet_id" {
   value       = aws_subnet.public.id
 }
 
-output "security_group_id" {
-  description = "ID of the security group"
-  value       = aws_security_group.main.id
+output "app_security_group_id" {
+  description = "Security group ID for the application server"
+  value       = aws_security_group.app.id
+}
+
+output "monitoring_security_group_id" {
+  description = "Security group ID for the monitoring server"
+  value       = aws_security_group.monitoring.id
 }

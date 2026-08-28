@@ -49,67 +49,92 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-# Security group: firewall rules
-resource "aws_security_group" "main" {
-  name        = "project-sg"
-  description = "security group for  project"
+resource "aws_security_group" "app" {
+  name        = "project-app-sg"
+  description = "Security group for application server"
   vpc_id      = aws_vpc.main.id
 
-  # SSH inbound: restricted to my ip only
   ingress {
-    description = "SSH from specific IP"
-    from_port   = "22"
-    to_port     = "22"
-    protocol    = "tcp"
-    cidr_blocks = [var.allowed_ssh_cidr]
-  }
-
-  # HTTP inbound for the application
-  ingress {
-    description = "HTTP from anywhere"
-    from_port   = "80"
-    to_port     = "80"
+    description = "HTTP from the Internet"
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Prometheus scraping Node Exporter
   ingress {
-    description = "Prometheus scrape Node Exporter"
-    from_port   = 9100
-    to_port     = 9100
+    description = "SSH from administrator IP"
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = [var.allowed_ssh_cidr]
   }
 
-  # Grafana web UI
+  egress {
+    description = "Allow outbound traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "project-app-sg"
+  }
+}
+
+resource "aws_security_group" "monitoring" {
+  name        = "project-monitoring-sg"
+  description = "Security group for monitoring server"
+  vpc_id      = aws_vpc.main.id
+
   ingress {
-    description = "Grafana from my IP"
+    description = "SSH from administrator IP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = [var.allowed_ssh_cidr]
+  }
+
+  ingress {
+    description = "Grafana from administrator IP"
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
     cidr_blocks = [var.allowed_ssh_cidr]
   }
 
-  # Loki receives logs from Promtail
-  ingress {
-    description = "Loki from VPC"
-    from_port   = 3100
-    to_port     = 3100
-    protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
-  }
-
-  # Outbound access - required for apt updates, Docker pulls, etc.
   egress {
-    description = "allow all outbound traffic"
+    description = "Allow outbound traffic"
     from_port   = 0
     to_port     = 0
-    protocol    = "-1" # -1 means all protocols
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {
-    Name = "project-sg"
+    Name = "project-monitoring-sg"
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "app_from_monitoring" {
+  security_group_id            = aws_security_group.app.id
+  referenced_security_group_id = aws_security_group.monitoring.id
+
+  from_port   = 9100
+  to_port     = 9100
+  ip_protocol = "tcp"
+
+  description = "Node Exporter from monitoring server"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "monitoring_from_app" {
+  security_group_id            = aws_security_group.monitoring.id
+  referenced_security_group_id = aws_security_group.app.id
+
+  from_port   = 3100
+  to_port     = 3100
+  ip_protocol = "tcp"
+
+  description = "Loki logs from application server"
 }

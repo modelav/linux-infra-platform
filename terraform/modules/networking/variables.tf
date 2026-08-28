@@ -17,6 +17,11 @@ variable "availability_zone" {
 }
 
 variable "allowed_ssh_cidr" {
-  description = "CIDR block allowed for SSH access (Your public IP/32)"
+  description = "Public IPv4 CIDR block allowed to access SSH and Grafana"
   type        = string
+
+  validation {
+    condition     = can(cidrhost(var.allowed_ssh_cidr, 0))
+    error_message = "allowed_ssh_cidr must be a valid CIDR block."
+  }
 }

@@ -8,9 +8,14 @@ output "subnet_id" {
   value       = module.networking.subnet_id
 }
 
-output "security_group_id" {
-  description = "Security group ID"
-  value       = module.networking.security_group_id
+output "app_security_group_id" {
+  description = "App security group ID"
+  value       = module.networking.app_security_group_id
+}
+
+output "monitoring_security_group_id" {
+  description = "Monitoring security group ID"
+  value       = module.networking.monitoring_security_group_id
 }
 
 output "app_server_public_ip" {
