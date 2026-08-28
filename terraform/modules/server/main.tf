@@ -25,9 +25,15 @@ resource "aws_instance" "server" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = var.instance_type
   subnet_id                   = var.subnet_id
+  associate_public_ip_address = var.associate_public_ip
   vpc_security_group_ids      = [var.security_group_id]
   key_name                    = var.key_name
-  associate_public_ip_address = var.associate_public_ip
+
+  # Require IMDSv2 to reduce exposure to metadata credential theft.
+  metadata_options {
+  http_endpoint = "enabled"
+  http_tokens   = "required"
+}
 
   root_block_device {
     volume_size           = 11
