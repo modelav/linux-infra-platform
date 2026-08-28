@@ -1,0 +1,5 @@
+aws_region = "eu-central-1"
+
+allowed_ssh_cidr = "203.0.113.10/32" #Replace this with your public IP in /32 CIDR notation.
+
+ssh_public_key = "ssh-ed25519 AAAA... replace-with-your-public-key"

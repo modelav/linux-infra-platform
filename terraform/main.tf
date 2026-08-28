@@ -1,10 +1,10 @@
 provider "aws" {
-  region = "eu-central-1"
+  region = var.aws_region
 }
 
 resource "aws_key_pair" "project_key" {
   key_name   = "project-key"
-  public_key = file(pathexpand("~/.ssh/id_ed25519.pub"))
+  public_key = trimspace(var.ssh_public_key)
 }
 
 module "networking" {
