@@ -12,3 +12,4 @@ override.tf.json
 *.vault-password
 .vscode
 .vault-password 
+.DS_Store
