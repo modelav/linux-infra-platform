@@ -65,7 +65,7 @@
 - name: Allow Node Exporter metrics from monitoring server
   community.general.ufw:
     rule: allow
-    port: "9100"
+    port: "{{ node_exporter_port }}"
     proto: tcp
     from_ip: "{{ monitoring_server_private_ip }}"
   become: true

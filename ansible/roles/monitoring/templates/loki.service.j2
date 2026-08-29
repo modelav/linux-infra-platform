@@ -1,16 +1,21 @@
 [Unit]
-Description=Loki
-After=network.target
+Description=Grafana Loki
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 User=loki
 Group=loki
-ExecStart=/usr/local/bin/loki-linux-amd64 -config.file=/etc/loki/loki-config.yml
+
+ExecStart=/usr/local/bin/loki-linux-amd64 \
+  -config.file=/etc/loki/loki-config.yml
+
 Restart=on-failure
 RestartSec=5s
 
 NoNewPrivileges=true
+PrivateTmp=true
 
 [Install]
 WantedBy=multi-user.target

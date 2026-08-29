@@ -1,19 +1,29 @@
+global:
+  resolve_timeout: 5m
+
 route:
-  group_by: ['alertname']
+  group_by:
+    - alertname
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
-  receiver: 'web.hook'
+  receiver: slack
 
 receivers:
-  - name: 'web.hook'
-    webhook_configs:
-      - url: 'http://localhost:5001/'
+  - name: slack
+    slack_configs:
+      - api_url: "{{ alertmanager_slack_webhook_url }}"
+        channel: "{{ alertmanager_slack_channel }}"
         send_resolved: true
+        title: "Linux Infrastructure Alert"
+        text: "An alert from the Linux Infrastructure Platform is firing."
 
 inhibit_rules:
   - source_match:
-      severity: 'critical'
+      severity: "critical"
     target_match:
-      severity: 'warning'
-    equal: ['alertname', 'dev', 'instance']
+      severity: "warning"
+    equal:
+      - alertname
+      - dev
+      - instance

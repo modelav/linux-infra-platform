@@ -9,8 +9,8 @@ loki.write "default" {
   }
 }
 
-local.file_match "system_logs" {
-  path_targets = [
+loki.source.file "system_logs" {
+  targets = [
     {
       __path__ = "/var/log/syslog",
       job      = "system",
@@ -22,14 +22,23 @@ local.file_match "system_logs" {
       host     = "{{ inventory_hostname }}",
     },
   ]
-}
 
-loki.source.file "system_logs" {
-  targets    = local.file_match.system_logs.targets
   forward_to = [loki.write.default.receiver]
+
+  file_match {
+    enabled = true
+  }
 }
 
 loki.source.journal "systemd" {
-  max_age    = "24h0m0s"
-  forward_to = [loki.write.default.receiver]
+  labels = {
+    job  = "systemd",
+    host = "{{ inventory_hostname }}",
+  }
+
+  max_age = "24h0m0s"
+
+  forward_to = [
+    loki.write.default.receiver,
+  ]
 }
