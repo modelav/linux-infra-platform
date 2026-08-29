@@ -62,31 +62,33 @@
     mode: "0600"
   become: true
 
-- name: Allow Node Exporter metrics port through ufw
+- name: Allow Node Exporter metrics from monitoring server
   community.general.ufw:
     rule: allow
     port: "9100"
     proto: tcp
-    from_ip: "10.0.0.0/16"
+    from_ip: "{{ monitoring_server_private_ip }}"
   become: true
 
-- name: Download node exporter
+- name: Download Node Exporter
   ansible.builtin.get_url:
-    url: "https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-amd64.tar.gz"
-    dest: /tmp/node_exporter.tar.gz
+    url:
+      "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/\
+      node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
+    dest: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
     mode: "0644"
   become: true
 
-- name: Extract node exporter
+- name: Extract Node Exporter
   ansible.builtin.unarchive:
-    src: /tmp/node_exporter.tar.gz
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64.tar.gz"
     dest: /tmp
     remote_src: true
   become: true
 
-- name: Move node exporter binary
+- name: Install Node Exporter binary
   ansible.builtin.copy:
-    src: /tmp/node_exporter-1.8.2.linux-amd64/node_exporter
+    src: "/tmp/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
     dest: /usr/local/bin/node_exporter
     owner: root
     group: root
@@ -118,57 +120,60 @@
     daemon_reload: true
   become: true
 
-- name: Download Promtail
+- name: Download Grafana Alloy package
   ansible.builtin.get_url:
-    url: "https://github.com/grafana/loki/releases/download/v3.0.0/promtail-linux-amd64.zip"
-    dest: /tmp/promtail.zip
+    url: "https://github.com/grafana/alloy/releases/download/v{{ alloy_version }}/alloy-{{ alloy_version }}-1.amd64.deb"
+    dest: "/tmp/alloy-{{ alloy_version }}-1.amd64.deb"
     mode: "0644"
   become: true
 
-- name: Install unzip
+- name: Install Grafana Alloy
   ansible.builtin.apt:
-    name: unzip
+    deb: "/tmp/alloy-{{ alloy_version }}-1.amd64.deb"
     state: present
   become: true
 
-- name: Extract Promtail
-  ansible.builtin.unarchive:
-    src: /tmp/promtail.zip
-    dest: /usr/local/bin
-    remote_src: true
+- name: Ensure Alloy is a member of the required log-reading groups
+  ansible.builtin.user:
+    name: alloy
+    groups:
+      - adm
+      - systemd-journal
+    append: true
   become: true
 
-- name: Create Promtail config directory
+- name: Ensure Alloy configuration directory exists
   ansible.builtin.file:
-    path: /etc/promtail
+    path: "{{ alloy_config_dir }}"
     state: directory
     owner: root
-    group: root
-    mode: "0755"
+    group: alloy
+    mode: "0750"
   become: true
 
-- name: Configure Promtail
+- name: Ensure Alloy data directory exists
+  ansible.builtin.file:
+    path: "{{ alloy_data_dir }}"
+    state: directory
+    owner: alloy
+    group: alloy
+    mode: "0750"
+  become: true
+
+- name: Configure Grafana Alloy
   ansible.builtin.template:
-    src: promtail-config.yml.j2
-    dest: /etc/promtail/promtail-config.yml
+    src: alloy.config.alloy.j2
+    dest: "{{ alloy_config_file }}"
     owner: root
-    group: root
-    mode: "0644"
+    group: alloy
+    mode: "0640"
+    validate: "/usr/bin/alloy validate %s"
   become: true
-  notify: Restart promtail
+  notify: Restart Alloy
 
-- name: Install promtail systemd service
-  ansible.builtin.template:
-    src: promtail.service.j2
-    dest: /etc/systemd/system/promtail.service
-    owner: root
-    group: root
-    mode: "0644"
-  become: true
-
-- name: Start and enable Promtail
-  ansible.builtin.systemd:
-    name: promtail
+- name: Ensure Alloy service is running and enabled
+  ansible.builtin.systemd_service:
+    name: alloy
     state: started
     enabled: true
     daemon_reload: true

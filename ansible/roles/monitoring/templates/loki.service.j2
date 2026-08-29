@@ -4,9 +4,13 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=loki
+Group=loki
 ExecStart=/usr/local/bin/loki-linux-amd64 -config.file=/etc/loki/loki-config.yml
 Restart=on-failure
+RestartSec=5s
+
+NoNewPrivileges=true
 
 [Install]
 WantedBy=multi-user.target

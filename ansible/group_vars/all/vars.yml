@@ -6,3 +6,14 @@ app_server_private_ip: ""
 monitoring_server_private_ip: ""
 
 app_secret_key: "{{ vault_app_secret_key }}"
+
+# Observability
+node_exporter_version: "1.12.1"
+
+alloy_version: "1.19.2"
+
+alloy_config_dir: "/etc/alloy"
+alloy_config_file: "/etc/alloy/config.alloy"
+alloy_data_dir: "/var/lib/alloy"
+
+loki_url: "http://{{ monitoring_server_private_ip }}:3100/loki/api/v1/push"
