@@ -13,3 +13,4 @@ override.tf.json
 .vscode
 .vault-password 
 .DS_Store
+vars.local.yml

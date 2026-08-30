@@ -1,10 +1,16 @@
 ---
-- name: Restart sshd
-  ansible.builtin.service:
-    name: sshd
+- name: Restart ssh
+  ansible.builtin.systemd_service:
+    name: "{{ common_ssh_service_name }}"
     state: restarted
 
 - name: Restart fail2ban
-  ansible.builtin.service:
+  ansible.builtin.systemd_service:
     name: fail2ban
     state: restarted
+
+- name: Reload audit rules
+  ansible.builtin.command:
+    cmd: augenrules --load
+  become: true
+  changed_when: false

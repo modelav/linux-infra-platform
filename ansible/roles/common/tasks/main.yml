@@ -1,116 +1,18 @@
 ---
-- name: Update apt cashed
-  ansible.builtin.apt:
-    update_cache: true
-    cache_valid_time: 3600
-  become: true
+- name: Configure users
+  ansible.builtin.import_tasks: users.yml
 
-- name: Create admin user
-  ansible.builtin.user:
-    name: admin
-    state: present
-    shell: /bin/bash
-    groups: sudo
-    append: true
-    create_home: true
-  become: true
+- name: Harden SSH
+  ansible.builtin.import_tasks: ssh.yml
 
-- name: Add SSH public key for admin user
-  ansible.posix.authorized_key:
-    user: admin
-    state: present
-    key: "{{lookup('file', lookup('env', 'HOME') ~ '/.ssh/id_ed25519.pub')}}"
-  become: true
+- name: Configure firewall
+  ansible.builtin.import_tasks: firewall.yml
 
-- name: Configure passwordless sudo for admin
-  ansible.builtin.copy:
-    dest: /etc/sudoers.d/admin
-    content: "admin ALL=(ALL) NOPASSWD:ALL\n"
-    owner: root
-    group: root
-    mode: "0440"
-    validate: "/usr/sbin/visudo -cf %s"
-  become: true
+- name: Configure fail2ban
+  ansible.builtin.import_tasks: fail2ban.yml
 
-- name: Disable root SSH login
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^#?PermitRootLogin\s+'
-    line: "PermitRootLogin no"
-    state: present
-    backup: true
-  become: true
-  notify: Restart sshd
+- name: Configure auditd
+  ansible.builtin.import_tasks: auditd.yml
 
-- name: Disable password authentication
-  ansible.builtin.lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^#?PasswordAuthentication\s+'
-    line: "PasswordAuthentication no"
-    state: present
-    backup: true
-  become: true
-  notify: Restart sshd
-
-- name: Ensure sshd is running and enabled
-  ansible.builtin.service:
-    name: sshd
-    state: started
-    enabled: true
-  become: true
-
-- name: Install ufw
-  ansible.builtin.apt:
-    name: ufw
-    state: present
-  become: true
-
-- name: Set ufw default deny incoming
-  community.general.ufw:
-    direction: incoming
-    policy: deny
-    state: enabled
-  become: true
-
-- name: Allow SSH through ufw
-  community.general.ufw:
-    rule: allow
-    port: "22"
-    proto: tcp
-  become: true
-
-- name: Install fail2ban
-  ansible.builtin.apt:
-    name: fail2ban
-    state: present
-  become: true
-
-- name: Configure fail2ban sshd jail
-  ansible.builtin.copy:
-    dest: /etc/fail2ban/jail.d/sshd.local
-    content: |
-      [sshd]
-      enabled = true
-      port = ssh
-      filter = sshd
-      logpath = /var/log/auth.log
-      maxretry = 3
-      bantime = 3600
-    owner: root
-    group: root
-    mode: "0644"
-  become: true
-  notify: Restart fail2ban
-
-- name: Ensure fail2ban is running and enabled
-  ansible.builtin.service:
-    name: fail2ban
-    state: started
-    enabled: true
-  become: true
-
-- name: Install unattended-upgrades
-  ansible.builtin.apt:
-    name: unattended-upgrades
-    state: present
-  become: true
+- name: Configure automatic security updates
+  ansible.builtin.import_tasks: updates.yml

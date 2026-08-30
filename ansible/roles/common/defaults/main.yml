@@ -1,0 +1,7 @@
+---
+common_admin_username: "admin"
+
+common_ssh_service_name: "ssh"
+common_ssh_config_path: "/etc/ssh/sshd_config"
+
+common_audit_rules_file: "/etc/audit/rules.d/99-hardening.rules"

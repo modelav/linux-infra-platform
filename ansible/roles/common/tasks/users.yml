@@ -1,0 +1,39 @@
+---
+- name: Validate administrator SSH public key
+  ansible.builtin.assert:
+    that:
+      - admin_ssh_public_key is defined
+      - admin_ssh_public_key | trim | length > 20
+    fail_msg: >
+      admin_ssh_public_key must be provided before SSH hardening.
+  become: true
+
+- name: Create automation administrator
+  ansible.builtin.user:
+    name: "{{ common_admin_username }}"
+    state: present
+    shell: /bin/bash
+    groups:
+      - sudo
+    append: true
+    create_home: true
+    password_lock: true
+  become: true
+
+- name: Install administrator SSH public key
+  ansible.posix.authorized_key:
+    user: "{{ common_admin_username }}"
+    state: present
+    key: "{{ admin_ssh_public_key }}"
+    manage_dir: true
+  become: true
+
+- name: Configure administrator sudo access
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ common_admin_username }}"
+    content: "{{ common_admin_username }} ALL=(ALL) NOPASSWD:ALL\n"
+    owner: root
+    group: root
+    mode: "0440"
+    validate: "/usr/sbin/visudo -cf %s"
+  become: true

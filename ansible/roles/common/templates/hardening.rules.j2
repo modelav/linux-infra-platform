@@ -1,0 +1,25 @@
+# Deletes all currently loaded audit rules before loading these rules.
+-D
+
+# Sets the audit backlog buffer size to 8192 events.
+-b 8192
+
+# Sets the audit failure mode
+-f 1
+
+-w /etc/passwd -p wa -k identity
+-w /etc/group -p wa -k identity
+-w /etc/shadow -p wa -k identity
+-w /etc/gshadow -p wa -k identity
+
+-w /etc/sudoers -p wa -k privilege
+-w /etc/sudoers.d/ -p wa -k privilege
+
+-w /etc/ssh/sshd_config -p wa -k ssh_config
+
+-w /var/log/auth.log -p wa -k auth_log
+
+-w /etc/ufw/ -p wa -k firewall
+
+# Lock the audit configuration until the system is rebooted.
+-e 2
