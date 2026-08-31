@@ -61,6 +61,8 @@
     restart_policy: unless-stopped
     published_ports:
       - "{{ app_container_port }}:80"
+    volumes:
+      - /opt/app/index.html:/usr/share/nginx/html/index.html:ro
   become: true
   notify: Restart application
 

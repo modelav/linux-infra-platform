@@ -1,11 +1,4 @@
 ---
-- name: Allow Grafana through ufw
-  community.general.ufw:
-    rule: allow
-    port: "{{ prometheus_port }}"
-    proto: tcp
-  become: true
-
 - name: Install prometheus
   ansible.builtin.apt:
     name: prometheus
@@ -57,6 +50,13 @@
       - python3-debian
     state: present
     update_cache: true
+  become: true
+
+- name: Allow Grafana through ufw
+  community.general.ufw:
+    rule: allow
+    port: "{{ grafana_port }}"
+    proto: tcp
   become: true
 
 - name: Add Grafana APT repository
