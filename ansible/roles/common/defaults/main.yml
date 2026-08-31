@@ -1,5 +1,5 @@
 ---
-common_admin_username: "admin"
+common_admin_username: "{{ automation_user }}"
 
 common_ssh_service_name: "ssh"
 common_ssh_config_path: "/etc/ssh/sshd_config"

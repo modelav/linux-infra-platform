@@ -1,18 +1,24 @@
 ---
-- name: Apply common hardening to all servers
+- name: Configure Linux infrastructure
   hosts: all
   become: true
+  remote_user: "{{ automation_user }}"
+
   roles:
     - common
 
-- name: Deploy application to app servers
+- name: Configure application servers
   hosts: app
   become: true
+  remote_user: "{{ automation_user }}"
+
   roles:
     - app
 
-- name: Deploy monitoring stack to monitoring servers
+- name: Configure monitoring server
   hosts: monitoring
   become: true
+  remote_user: "{{ automation_user }}"
+
   roles:
     - monitoring

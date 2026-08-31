@@ -1,0 +1,16 @@
+---
+- name: Bootstrap Linux servers
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Verify bootstrap account
+      ansible.builtin.assert:
+        that:
+          - ansible_user == "ubuntu"
+        fail_msg: >
+          bootstrap.yml must be executed using the initial cloud
+          provider account, expected to be ubuntu.
+
+  roles:
+    - common
