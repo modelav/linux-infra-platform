@@ -1,0 +1,26 @@
+---
+- name: Verify generated infrastructure inventory
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Verify public address is defined
+      ansible.builtin.assert:
+        that:
+          - ansible_host is defined
+          - ansible_host | length > 0
+        fail_msg: "ansible_host is missing for {{ inventory_hostname }}"
+
+    - name: Verify private address is defined
+      ansible.builtin.assert:
+        that:
+          - private_ip is defined
+          - private_ip | length > 0
+        fail_msg: "private_ip is missing for {{ inventory_hostname }}"
+
+    - name: Display infrastructure mapping
+      ansible.builtin.debug:
+        msg:
+          host: "{{ inventory_hostname }}"
+          public_ip: "{{ ansible_host }}"
+          private_ip: "{{ private_ip }}"

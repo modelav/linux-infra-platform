@@ -15,3 +15,5 @@ override.tf.json
 .DS_Store
 vars.local.yml
 *.retry
+hosts.generated.ini
+bootstrap.generated.ini

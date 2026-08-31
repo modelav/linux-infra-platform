@@ -1,10 +1,10 @@
 ---
 # admin_ssh_public_key: ""
 # allowed_ssh_cidr: ""
-automation_user: "admin"
+app_server_private_ip: "{{ hostvars[groups['app'][0]].private_ip }}"
+monitoring_server_private_ip: "{{ hostvars[groups['monitoring'][0]].private_ip }}"
 
-app_server_private_ip: ""
-monitoring_server_private_ip: ""
+automation_user: "admin"
 
 app_container_name: "web-app"
 app_container_image: "nginx:1.31.4-alpine-slim"
