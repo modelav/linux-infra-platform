@@ -28,23 +28,7 @@
     proto: "tcp"
   become: true
 
-- name: Pull nginx image
-  community.docker.docker_image:
-    name: nginx:alpine
-    source: pull
-  become: true
-
-- name: Run nginx container
-  community.docker.docker_container:
-    name: web-app
-    image: nginx:alpine
-    state: started
-    restart_policy: unless-stopped
-    ports:
-      - "80:80"
-  become: true
-
-- name: Create app secret directory
+- name: Create application content directory
   ansible.builtin.file:
     path: /opt/app
     state: directory
@@ -53,14 +37,32 @@
     mode: "0750"
   become: true
 
-- name: Write app secret to file
+- name: Deploy application homepage
   ansible.builtin.template:
-    src: env.j2
-    dest: /opt/app/.env
-    owner: admin
-    group: admin
-    mode: "0600"
+    src: index.html.j2
+    dest: /opt/app/index.html
+    owner: root
+    group: root
+    mode: "0644"
   become: true
+  notify: Restart application
+
+- name: Pull nginx image
+  community.docker.docker_image:
+    name: "{{ app_container_image }}"
+    source: pull
+  become: true
+
+- name: Deploy application container
+  community.docker.docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ app_container_image }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ app_container_port }}:80"
+  become: true
+  notify: Restart application
 
 - name: Allow Node Exporter metrics from monitoring server
   community.general.ufw:
@@ -101,6 +103,7 @@
     name: node_exporter
     system: true
     shell: /usr/sbin/nologin
+    create_home: false
   become: true
 
 - name: Install node exporter systemd service

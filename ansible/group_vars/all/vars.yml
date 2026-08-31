@@ -10,7 +10,7 @@ app_container_name: "web-app"
 app_container_image: "nginx:1.31.4-alpine-slim"
 app_container_port: "80"
 
-app_secret_key: "{{ vault_app_secret_key }}"
+deployment_environment: "dev"
 
 # Observability versions
 node_exporter_version: "1.12.1"
