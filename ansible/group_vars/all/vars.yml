@@ -6,34 +6,41 @@ monitoring_server_private_ip: "{{ hostvars[groups['monitoring'][0]].private_ip }
 
 automation_user: "admin"
 
+# Container configuration
 app_container_name: "web-app"
 app_container_image: "nginx:1.31.4-alpine-slim"
 app_container_port: "80"
 
-deployment_environment: "dev"
-
 # Observability versions
-node_exporter_version: "1.12.1"
-alloy_version: "1.19.2"
-loki_version: "3.7.7"
-alertmanager_version: "0.33.1"
+app_node_exporter_version: "1.12.1"
+app_alloy_version: "1.19.2"
 
 # Observability paths
-loki_data_dir: "/var/lib/loki"
-alloy_data_dir: "/var/lib/alloy"
-alloy_config_dir: "/etc/alloy"
-alloy_config_file: "/etc/alloy/config.alloy"
+app_alloy_data_dir: "/var/lib/alloy"
+app_alloy_config_dir: "/etc/alloy"
+app_alloy_config_file: "/etc/alloy/config.alloy"
 
 # Observability ports
-node_exporter_port: 9100
-loki_port: 3100
-prometheus_port: 9090
-alertmanager_port: 9093
-grafana_port: 3000
+app_node_exporter_port: 9100
+
+app_deployment_environment: "dev"
+
+# Observability versions
+monitoring_loki_version: "3.7.7"
+monitoring_alertmanager_version: "0.33.1"
+
+# Observability paths
+monitoring_loki_data_dir: "/var/lib/loki"
+
+# Observability ports
+monitoring_loki_port: 3100
+monitoring_prometheus_port: 9090
+monitoring_alertmanager_port: 9093
+monitoring_grafana_port: 3000
 
 # Loki endpoint used by Alloy
-loki_url: "http://{{ monitoring_server_private_ip }}:3100/loki/api/v1/push"
+monitoring_loki_url: "http://{{ monitoring_server_private_ip }}:3100/loki/api/v1/push"
 
 # Alertmanager notification
-alertmanager_slack_webhook_url: "{{ vault_alertmanager_slack_webhook_url }}"
-alertmanager_slack_channel: "#devops-alerts"
+monitoring_alertmanager_slack_webhook_url: "{{ vault_alertmanager_slack_webhook_url }}"
+monitoring_alertmanager_slack_channel: "#devops-alerts"

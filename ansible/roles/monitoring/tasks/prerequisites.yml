@@ -1,0 +1,15 @@
+---
+- name: Install APT prerequisites
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - python3-debian
+    state: present
+    update_cache: true
+  become: true
+
+- name: Install unzip
+  ansible.builtin.apt:
+    name: unzip
+    state: present
+  become: true

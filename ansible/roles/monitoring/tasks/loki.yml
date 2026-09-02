@@ -1,0 +1,87 @@
+---
+- name: Allow Loki ingestion from application server
+  community.general.ufw:
+    rule: allow
+    port: "{{ monitoring_loki_port }}"
+    proto: tcp
+    from_ip: "{{ app_server_private_ip }}"
+  become: true
+
+- name: Create Loki system user
+  ansible.builtin.user:
+    name: loki
+    system: true
+    shell: /usr/sbin/nologin
+    home: "{{ monitoring_loki_data_dir }}"
+    create_home: false
+  become: true
+
+- name: Download Loki
+  ansible.builtin.get_url:
+    url: "https://github.com/grafana/loki/releases/download/v{{ monitoring_loki_version }}/loki-linux-amd64.zip"
+    dest: "/tmp/loki-{{ monitoring_loki_version }}-linux-amd64.zip"
+    mode: "0644"
+  become: true
+
+- name: Extract Loki
+  ansible.builtin.unarchive:
+    src: "/tmp/loki-{{ monitoring_loki_version }}-linux-amd64.zip"
+    dest: /usr/local/bin
+    remote_src: true
+  become: true
+
+- name: Create Loki configuration directory
+  ansible.builtin.file:
+    path: /etc/loki
+    state: directory
+    owner: root
+    group: loki
+    mode: "0750"
+  become: true
+
+- name: Create Loki data directory
+  ansible.builtin.file:
+    path: "{{ monitoring_loki_data_dir }}"
+    state: directory
+    owner: loki
+    group: loki
+    mode: "0750"
+  become: true
+
+- name: Configure Loki
+  ansible.builtin.template:
+    src: loki-config.yml.j2
+    dest: /etc/loki/loki-config.yml
+    owner: root
+    group: loki
+    mode: "0640"
+  become: true
+  notify: Restart loki
+
+- name: Install loki systemd service
+  ansible.builtin.template:
+    src: loki.service.j2
+    dest: /etc/systemd/system/loki.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Start and enabled loki
+  ansible.builtin.systemd:
+    name: loki
+    state: started
+    enabled: true
+    daemon_reload: true
+  become: true
+
+- name: Verify Loki is ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ monitoring_loki_port }}/ready"
+    method: GET
+    status_code: 200
+  register: monitoring_loki_readiness
+  until: monitoring_loki_readiness.status == 200
+  retries: 12
+  delay: 5
+  become: true

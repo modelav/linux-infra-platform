@@ -1,0 +1,92 @@
+---
+- name: Allow Grafana through ufw
+  community.general.ufw:
+    rule: allow
+    port: "{{ monitoring_grafana_port }}"
+    proto: tcp
+  become: true
+
+- name: Add Grafana APT repository
+  ansible.builtin.deb822_repository:
+    name: grafana
+    types:
+      - deb
+    uris:
+      - https://apt.grafana.com
+    suites:
+      - stable
+    components:
+      - main
+    signed_by: https://apt.grafana.com/gpg-full.key
+    state: present
+  become: true
+
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+
+- name: Install Grafana
+  ansible.builtin.apt:
+    name: grafana
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Ensure Grafana provisioning directory exists
+  ansible.builtin.file:
+    path: /etc/grafana/provisioning/dashboards
+    state: directory
+    owner: root
+    group: grafana
+    mode: "0755"
+  become: true
+
+- name: Provision Grafana dashboard provider config
+  ansible.builtin.copy:
+    src: dashboards.yml
+    dest: /etc/grafana/provisioning/dashboards/dashboards.yml
+    owner: root
+    group: grafana
+    mode: "0640"
+  become: true
+  notify: Restart grafana
+
+- name: Provision Grafana datasource
+  ansible.builtin.template:
+    src: datasource.yml.j2
+    dest: /etc/grafana/provisioning/datasources/prometheus.yml
+    owner: root
+    group: grafana
+    mode: "0640"
+  become: true
+  notify: Restart grafana
+
+- name: Provision Grafana dashboard
+  ansible.builtin.copy:
+    src: node-overview.json
+    dest: /etc/grafana/provisioning/dashboards/node-overview.json
+    owner: root
+    group: grafana
+    mode: "0640"
+  become: true
+  notify: Restart grafana
+
+- name: Ensure Grafana is running and enabled
+  ansible.builtin.service:
+    name: grafana-server
+    state: started
+    enabled: true
+  become: true
+
+- name: Verify Grafana is healthy
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:{{ monitoring_grafana_port }}/api/health"
+    method: GET
+    status_code: 200
+  register: monitoring_grafana_health
+  until: monitoring_grafana_health.status == 200
+  retries: 12
+  delay: 5
+  become: true

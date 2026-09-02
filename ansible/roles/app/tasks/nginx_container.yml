@@ -1,0 +1,49 @@
+---
+- name: Allow HTTP through ufw
+  community.general.ufw:
+    rule: allow
+    port: "80"
+    proto: "tcp"
+  become: true
+
+- name: Create application content directory
+  ansible.builtin.file:
+    path: /opt/app
+    state: directory
+    owner: admin
+    group: admin
+    mode: "0750"
+  become: true
+
+- name: Deploy application homepage
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /opt/app/index.html
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Restart application
+
+- name: Pull nginx image
+  community.docker.docker_image:
+    name: "{{ app_container_image }}"
+    source: pull
+  become: true
+
+- name: Deploy application container
+  community.docker.docker_container:
+    name: "{{ app_container_name }}"
+    image: "{{ app_container_image }}"
+    state: started
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ app_container_port }}:80"
+    volumes:
+      - /opt/app/index.html:/usr/share/nginx/html/index.html:ro
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+  become: true
+  notify: Restart application
