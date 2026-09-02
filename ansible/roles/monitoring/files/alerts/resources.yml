@@ -1,0 +1,58 @@
+groups:
+  - name: resources
+    rules:
+      - alert: HighCPUUsage
+        expr: |
+          (
+            1 -
+            avg by (instance) (
+              rate(node_cpu_seconds_total{mode="idle"}[5m])
+            )
+          ) * 100 > 90
+        for: 10m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: >-
+            CPU usage has been above 90% for more than 10 minutes.
+
+      - alert: HighMemoryUsage
+        expr: |
+          (
+            1 -
+            node_memory_MemAvailable_bytes
+            /
+            node_memory_MemTotal_bytes
+          ) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: >-
+            Memory usage has been above 90% for more than 5 minutes.
+
+      - alert: HighDiskUsage
+        expr: |
+          (
+            1 -
+            node_filesystem_avail_bytes{
+              fstype!~"tmpfs|overlay|squashfs"
+            }
+            /
+            node_filesystem_size_bytes{
+              fstype!~"tmpfs|overlay|squashfs"
+            }
+          ) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: resources
+        annotations:
+          summary: "High filesystem usage on {{ $labels.instance }}"
+          description: >-
+            Filesystem {{ $labels.mountpoint }} on {{ $labels.instance }}
+            has been above 80% usage for more than 5 minutes.

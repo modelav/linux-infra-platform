@@ -16,13 +16,15 @@
     mode: "0755"
   become: true
 
-- name: Copy alert rules
+- name: Deploy Prometheus alert rules
   ansible.builtin.copy:
-    src: instance-down.yml
-    dest: /etc/prometheus/rules/instance-down.yml
+    src: "{{ item }}"
+    dest: "/etc/prometheus/rules/{{ item | basename }}"
     owner: prometheus
     group: prometheus
     mode: "0644"
+    validate: "/usr/bin/promtool check rules %s"
+  loop: "{{ lookup('ansible.builtin.fileglob', role_path + '/files/alerts/*.yml', wantlist=True) }}"
   become: true
   notify: Restart prometheus
 
@@ -33,6 +35,7 @@
     owner: prometheus
     group: prometheus
     mode: "0640"
+    validate: "/usr/bin/promtool check config %s"
   become: true
   notify: Restart prometheus
 

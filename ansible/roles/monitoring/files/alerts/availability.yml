@@ -1,0 +1,26 @@
+groups:
+  - name: availability
+    rules:
+      - alert: InstanceDown
+        expr: up{job="node_exporter"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Node exporter is down"
+          description: >-
+            Node exporter on {{ $labels.instance }} has been unavailable
+            for more than 2 minutes.
+
+      - alert: PrometheusDown
+        expr: up{job="prometheus"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "Prometheus is down"
+          description: >-
+            Prometheus on {{ $labels.instance }} has been unavailable
+            for more than 2 minutes.
