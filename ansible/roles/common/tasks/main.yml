@@ -16,3 +16,6 @@
 
 - name: Configure automatic security updates
   ansible.builtin.import_tasks: updates.yml
+
+- name: Configure node exporter
+  ansible.builtin.import_tasks: node_exporter.yml

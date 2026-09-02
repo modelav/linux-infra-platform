@@ -21,7 +21,7 @@ app_alloy_config_dir: "/etc/alloy"
 app_alloy_config_file: "/etc/alloy/config.alloy"
 
 # Observability ports
-app_node_exporter_port: 9100
+node_exporter_port: 9100
 
 app_deployment_environment: "dev"
 

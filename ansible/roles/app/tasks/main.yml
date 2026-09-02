@@ -5,8 +5,5 @@
 - name: Configure nginx container
   ansible.builtin.import_tasks: nginx_container.yml
 
-- name: Configure node exporter
-  ansible.builtin.import_tasks: node_exporter.yml
-
 - name: Configure alloy
   ansible.builtin.import_tasks: alloy.yml

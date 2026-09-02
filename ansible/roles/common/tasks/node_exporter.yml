@@ -63,8 +63,8 @@
     url: "http://127.0.0.1:{{ node_exporter_port }}/metrics"
     method: GET
     status_code: 200
-  register: app_node_exporter_reachability
-  until: app_node_exporter_reachability.status == 200
+  register: common_node_exporter_reachability
+  until: common_node_exporter_reachability.status == 200
   retries: 12
   delay: 5
   become: true
