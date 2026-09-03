@@ -4,6 +4,7 @@
     rule: allow
     port: "{{ monitoring_grafana_port }}"
     proto: tcp
+    from_ip: "{{ allowed_ssh_cidr }}"
   become: true
 
 - name: Add Grafana APT repository

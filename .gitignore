@@ -17,3 +17,4 @@ vars.local.yml
 *.retry
 hosts.generated.ini
 bootstrap.generated.ini
+._*
