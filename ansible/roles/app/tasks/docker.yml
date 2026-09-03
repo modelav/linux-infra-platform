@@ -7,13 +7,6 @@
     cache_valid_time: 3600
   become: true
 
-- name: Add admin user to docker group
-  ansible.builtin.user:
-    name: admin
-    groups: docker
-    append: true
-  become: true
-
 - name: Ensure Docker service is running and enabled
   ansible.builtin.service:
     name: docker
