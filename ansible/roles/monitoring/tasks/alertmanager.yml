@@ -98,3 +98,14 @@
   retries: 12
   delay: 5
   become: true
+
+- name: Create Alertmanager Slack webhook secret file
+  ansible.builtin.copy:
+    content: "{{ monitoring_alertmanager_slack_webhook_url }}\n"
+    dest: /etc/alertmanager/slack_webhook
+    owner: root
+    group: alertmanager
+    mode: "0640"
+  become: true
+  no_log: true
+  notify: Restart alertmanager
