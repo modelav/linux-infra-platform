@@ -18,3 +18,4 @@ vars.local.yml
 hosts.generated.ini
 bootstrap.generated.ini
 ._*
+backend.hcl
