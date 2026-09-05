@@ -19,7 +19,9 @@
 
 - name: Download Alertmanager
   ansible.builtin.get_url:
-    url: "https://github.com/prometheus/alertmanager/releases/download/v{{ monitoring_alertmanager_version }}/alertmanager-{{ monitoring_alertmanager_version }}.linux-amd64.tar.gz"
+    url:
+      "https://github.com/prometheus/alertmanager/releases/download/v{{ monitoring_alertmanager_version }}/\
+      alertmanager-{{ monitoring_alertmanager_version }}.linux-amd64.tar.gz"
     dest: "/tmp/alertmanager-{{ monitoring_alertmanager_version }}.linux-amd64.tar.gz"
     mode: "0644"
   become: true

@@ -19,3 +19,4 @@ hosts.generated.ini
 bootstrap.generated.ini
 ._*
 backend.hcl
+.ansible/

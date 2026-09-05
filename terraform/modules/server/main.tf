@@ -31,9 +31,9 @@ resource "aws_instance" "server" {
 
   # Require IMDSv2 to reduce exposure to metadata credential theft.
   metadata_options {
-  http_endpoint = "enabled"
-  http_tokens   = "required"
-}
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
 
   root_block_device {
     volume_size           = 11
