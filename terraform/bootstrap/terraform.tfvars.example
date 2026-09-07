@@ -1,2 +1,5 @@
 aws_region  = "eu-central-1"
 bucket_name = "replace-with-the-bootstrap-state-bucket-name"
+
+github_owner_id      = "YOUR_OWNER_ID"
+github_repository_id = "YOUR_REPOSITORY_ID"
