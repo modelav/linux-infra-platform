@@ -3,8 +3,16 @@ provider "aws" {
 }
 
 resource "aws_key_pair" "project_key" {
-  key_name   = "project-key"
-  public_key = trimspace(var.ssh_public_key)
+  key_name = "project-key"
+
+  public_key = join(
+    " ",
+    slice(
+      split(" ", trimspace(var.ssh_public_key)),
+      0,
+      2
+    )
+  )
 }
 
 module "networking" {
