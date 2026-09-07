@@ -19,7 +19,10 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
+      ALLOWED_SSH_CIDR: ${{ vars.ALLOWED_SSH_CIDR }}
+      SSH_PUBLIC_KEY: ${{ vars.SSH_PUBLIC_KEY }}
       TF_IN_AUTOMATION: "true"
+      TF_INPUT: "false"
 
     steps:
       - name: Checkout
@@ -40,15 +43,25 @@ jobs:
         with:
           terraform_version: "1.16.0"
 
-      - name: Validate backend configuration
+      - name: Validate Terraform variables
         run: |
-          test -n "$TF_STATE_BUCKET" || {
-          echo "::error::TF_STATE_BUCKET GitHub Actions variable is not configured."
+          test -n "$AWS_REGION" || {
+          echo "::error::AWS_REGION is not configured."
           exit 1
           }
 
-          test -n "$AWS_REGION" || {
-          echo "::error::AWS_REGION GitHub Actions variable is not configured."
+          test -n "$TF_STATE_BUCKET" || {
+          echo "::error::TF_STATE_BUCKET is not configured."
+          exit 1
+          }
+
+          test -n "$ALLOWED_SSH_CIDR" || {
+          echo "::error::ALLOWED_SSH_CIDR is not configured."
+          exit 1
+          }
+
+          test -n "$SSH_PUBLIC_KEY" || {
+          echo "::error::SSH_PUBLIC_KEY is not configured."
           exit 1
           }
 
@@ -61,4 +74,11 @@ jobs:
 
       - name: Terraform plan
         working-directory: terraform
-        run: terraform plan -no-color
+        env:
+          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+          TF_VAR_allowed_ssh_cidr: ${{ vars.ALLOWED_SSH_CIDR }}
+          TF_VAR_ssh_public_key: ${{ vars.SSH_PUBLIC_KEY }}
+        run: |
+          terraform plan \
+          -input=false \
+          -no-color
