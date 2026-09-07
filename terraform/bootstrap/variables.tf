@@ -18,3 +18,25 @@ variable "bucket_name" {
     error_message = "bucket_name must be 3-63 characters, use lowercase letters/numbers/dots/hyphens, and not contain consecutive dots."
   }
 }
+
+variable "github_owner" {
+  description = "GitHub repository owner"
+  type        = string
+  default     = "modelav"
+}
+
+variable "github_repository" {
+  description = "GitHub repository name"
+  type        = string
+  default     = "linux-infra-platform"
+}
+
+variable "github_owner_id" {
+  description = "Immutable GitHub owner ID used by the OIDC subject"
+  type        = string
+}
+
+variable "github_repository_id" {
+  description = "Immutable GitHub repository ID used by the OIDC subject"
+  type        = string
+}
