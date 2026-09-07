@@ -12,3 +12,8 @@ output "github_actions_deploy_role_arn" {
   description = "IAM role assumed by GitHub Actions through OIDC"
   value       = aws_iam_role.github_actions_deploy.arn
 }
+
+output "github_actions_plan_role_arn" {
+  description = "IAM role assumed by Terraform Plan through GitHub OIDC"
+  value       = aws_iam_role.github_actions_plan.arn
+}

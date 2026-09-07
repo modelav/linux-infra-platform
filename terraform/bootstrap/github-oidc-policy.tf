@@ -28,3 +28,34 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
     }
   }
 }
+
+data "aws_iam_policy_document" "github_actions_plan_assume_role" {
+  statement {
+    sid     = "GitHubActionsOIDCPlan"
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type = "Federated"
+
+      identifiers = [
+        aws_iam_openid_connect_provider.github.arn
+      ]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:sub"
+
+      values = [
+        "repo:${var.github_owner}@${var.github_owner_id}/${var.github_repository}@${var.github_repository_id}:ref:refs/heads/main"
+      ]
+    }
+  }
+}

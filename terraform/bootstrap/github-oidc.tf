@@ -23,3 +23,15 @@ resource "aws_iam_role" "github_actions_deploy" {
     ManagedBy = "Terraform"
   }
 }
+
+resource "aws_iam_role" "github_actions_plan" {
+  name = "linux-infra-github-actions-plan"
+
+  assume_role_policy = data.aws_iam_policy_document.github_actions_plan_assume_role.json
+
+  tags = {
+    Name      = "linux-infra-github-actions-plan"
+    Project   = "linux-infra-platform"
+    ManagedBy = "Terraform"
+  }
+}
